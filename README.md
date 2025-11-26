@@ -7,6 +7,7 @@ A comprehensive TypeScript scanner built with Bun to detect compromised npm pack
 - **Recursive File Scanning**: Deeply scans directories to find suspicious files matching known IOC patterns
 - **SHA256 Hash Verification**: Computes and verifies file hashes against a database of known malicious file signatures
 - **Dependency Scanning**: Automatically detects and scans lock files (bun.lock, yarn.lock, pnpm-lock.yaml) to identify compromised npm packages by comparing package names and versions against a database of known compromised packages
+- **Preinstall Hook Detection**: Scans all package.json files to detect malicious preinstall hooks (specifically `node setup_bun.js`) that are commonly used in supply chain attacks
 - **Multiple IOC Detection**: Scans for various malicious file patterns including:
   - `bun_environment.js`
   - `setup_bun.js`
@@ -54,6 +55,10 @@ No IOC matches found.
 		🟢 No matches found
 	🟢 No dependencies compromised were found
 
+📦 Checking package files in ./my-project
+	💾 Results saved to results/checkPackageFiles-2024-01-01T12-00-00-000Z.json
+	🟢 No package.json files with 'preinstall: node setup_bun.js' found.
+
 ⏱️ Scan completed in 2.34 seconds
 ```
 
@@ -80,6 +85,10 @@ Found 2 IOC matches:
 	💾 Results saved to results/dependencies-bun-abc123-2024-01-01T12-00-00-000Z.json
 	🚨 Found 1 matches
 
+📦 Checking package files in ./my-project
+	💾 Results saved to results/checkPackageFiles-2024-01-01T12-00-00-000Z.json
+	🚨 Found 1 package.json files with 'preinstall: node setup_bun.js'
+
 ⏱️ Scan completed in 3.45 seconds
 ```
 
@@ -92,9 +101,10 @@ This security scanner is designed for the SHA1-HULUD pt 2 supply chain attack by
 3. **Computing SHA256 hashes** for each matching file
 4. **Comparing hashes** against a database of known malicious file signatures
 5. **Scanning dependencies** by automatically finding and parsing lock files (bun.lock, yarn.lock, pnpm-lock.yaml) to check if any installed packages match known compromised package names and versions
-6. **Reporting matches** with detailed information about compromised files and packages
+6. **Checking package.json files** for malicious preinstall hooks that execute `node setup_bun.js`, which is a common attack vector used to inject malicious code during package installation
+7. **Reporting matches** with detailed information about compromised files and packages
 
-The scanner helps you quickly identify if your system has been compromised by malicious npm packages that inject malicious code during installation or build processes. It performs both file-based IOC detection and dependency-based package verification to provide comprehensive security coverage.
+The scanner helps you quickly identify if your system has been compromised by malicious npm packages that inject malicious code during installation or build processes. It performs file-based IOC detection, dependency-based package verification, and preinstall hook detection to provide comprehensive security coverage.
 
 ## ⚠️ If Compromised Packages Found
 

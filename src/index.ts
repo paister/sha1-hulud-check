@@ -1,4 +1,5 @@
 import { checkDependencies } from "./checkDependencies";
+import { checkPackageFiles } from "./checkPackageFiles";
 import { scanIOCs } from "./scanIOCs";
 import { access } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -16,6 +17,9 @@ async function main(directory: string) {
 
   console.log(`📦 Checking dependencies in ${directory}`);
   await checkDependencies(directory);
+
+  console.log(`📦 Checking package files in ${directory}`);
+  await checkPackageFiles(directory);
 
   const endTime = performance.now();
   const duration = ((endTime - startTime) / 1000).toFixed(2);
