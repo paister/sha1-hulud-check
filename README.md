@@ -1,4 +1,4 @@
-# Security Check Scanner
+# SHA1-HULUD Security Check Scanner
 
 A comprehensive TypeScript scanner built with Bun to detect compromised npm packages from the SHA1-HULUD pt 2 supply chain attack. This tool performs deep recursive scans of your project directories to identify malicious files by matching their SHA256 hashes against known Indicators of Compromise (IOCs).
 
@@ -150,9 +150,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [GitLab Blog: Widespread npm Supply Chain Attack](https://about.gitlab.com/blog/gitlab-discovers-widespread-npm-supply-chain-attack/) - GitLab's analysis of the widespread npm supply chain attack
 - [Wiz Blog: Shai-Hulud 2.0 Ongoing Supply Chain Attack](https://www.wiz.io/blog/shai-hulud-2-0-ongoing-supply-chain-attack) - Wiz's analysis of the ongoing Shai-Hulud 2.0 supply chain attack
 
-
 ### Other Scanners
 
 - [SHA1-HULUD Scanner](https://github.com/standujar/sha1-hulud-scanner?tab=readme-ov-file) - Another scanner for detecting SHA1-HULUD supply chain attack indicators
-
-

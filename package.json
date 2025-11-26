@@ -1,6 +1,9 @@
 {
-  "name": "security-check",
-  "module": "index.ts",
+  "name": "sha1-hulud-security-check",
+  "version": "1.0.0",
+  "description": "A comprehensive TypeScript scanner built with Bun to detect compromised npm packages from the SHA1-HULUD pt 2 supply chain attack",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
   "type": "module",
   "private": true,
   "devDependencies": {
