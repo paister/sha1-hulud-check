@@ -3,7 +3,7 @@ import { IOCS } from "./IOC";
 import { sha256FromFile } from "./lib/sha256FromFile";
 
 export async function scanIOCs(directory: string): Promise<void> {
-  console.log(`Scanning ${directory} for IOCs...`);
+  console.log(`\t📂 Scanning ${directory} for IOCs...`);
   const foundFiles: { file: string; ioc: string; hash: string }[] = [];
 
   for (const ioc of IOCS) {
@@ -21,17 +21,17 @@ export async function scanIOCs(directory: string): Promise<void> {
           });
         }
       } catch (error) {
-        console.error(`Error processing file ${file}:`, error);
+        console.error(`\t🚨 Error processing file ${file}:`, error);
       }
     }
   }
 
   if (foundFiles.length > 0) {
-    console.log(`Found ${foundFiles.length} IOC matches:`);
+    console.log(`\t🚨 Found ${foundFiles.length} IOC matches:`);
     foundFiles.forEach(({ file, ioc, hash }) => {
-      console.log(`  ${ioc}: ${file} (${hash})`);
+      console.log(`\t\t🚨 ${ioc}: ${file} (${hash})`);
     });
   } else {
-    console.log("No IOC matches found.");
+    console.log("\t🟢 No IOC matches found.");
   }
 }

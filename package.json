@@ -14,5 +14,8 @@
   },
   "scripts": {
     "check": "bun run src/index.ts"
+  },
+  "dependencies": {
+    "csv": "^6.4.1"
   }
 }
