@@ -221,7 +221,6 @@ export async function getLockDependencies(
   lockFilePath: string
 ): Promise<Dependency[] | undefined> {
   const fileName = basename(lockFilePath);
-  console.log(`\t\t📦 Processing lock file: ${fileName} at ${lockFilePath}`);
 
   if (fileName === "bun.lock") {
     return getBunLockDependencies(lockFilePath);

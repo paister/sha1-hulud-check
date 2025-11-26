@@ -23,12 +23,18 @@ export async function checkDependencies(directory: string): Promise<void> {
   console.log(`\t🔍 Found ${lockFiles.length} lock files`);
 
   let totalMatches = 0;
+  const resultsPerLock: {
+    lockFile: string;
+    matches: CheckDependenciesResult[];
+  }[] = [];
 
   for (const lockFile of lockFiles) {
     const matches = await checkLockFile(lockFile, compromisedPackages);
     totalMatches += matches.length;
-    await saveResults(matches, lockFile);
+    resultsPerLock.push({ lockFile, matches });
   }
+
+  await saveAllResults(resultsPerLock);
 
   if (totalMatches > 0) {
     console.log(`\t🚨 Found ${totalMatches} matches`);
@@ -37,22 +43,29 @@ export async function checkDependencies(directory: string): Promise<void> {
   }
 }
 
-const saveResults = async (
-  results: CheckDependenciesResult[],
-  lockFile: string
+const saveAllResults = async (
+  resultsPerLock: { lockFile: string; matches: CheckDependenciesResult[] }[]
 ): Promise<void> => {
-  const lockFileName =
-    lockFile.split("/").pop()?.replace(".lock", "") || "unknown";
-  const logfilePathHash = hash(lockFile);
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const resultFileName = `dependencies-${lockFileName}-${logfilePathHash}-${timestamp}.json`;
+  const resultFileName = `dependencies-all-${timestamp}.json`;
   const resultPath = join(process.cwd(), "results", resultFileName);
 
+  let totalMatches = 0;
+
+  const lockFileResults = resultsPerLock.map(({ lockFile, matches }) => {
+    totalMatches += matches.length;
+    return {
+      lockFilePath: lockFile,
+      scanTimestamp: new Date().toISOString(),
+      totalMatches: matches.length,
+      results: matches,
+    };
+  });
+
   const resultData = {
-    lockFilePath: lockFile,
     scanTimestamp: new Date().toISOString(),
-    totalMatches: results.length,
-    results: results,
+    totalMatches: totalMatches,
+    lockFiles: lockFileResults,
   };
 
   await Bun.write(resultPath, JSON.stringify(resultData, null, 2));
