@@ -6,11 +6,12 @@ A comprehensive TypeScript scanner built with Bun to detect compromised npm pack
 
 - **Recursive File Scanning**: Deeply scans directories to find suspicious files matching known IOC patterns
 - **SHA256 Hash Verification**: Computes and verifies file hashes against a database of known malicious file signatures
+- **Dependency Scanning**: Automatically detects and scans lock files (bun.lock, yarn.lock, pnpm-lock.yaml) to identify compromised npm packages by comparing package names and versions against a database of known compromised packages
 - **Multiple IOC Detection**: Scans for various malicious file patterns including:
   - `bun_environment.js`
   - `setup_bun.js`
 - **Fast Performance**: Built with Bun runtime for optimal scanning speed
-- **Detailed Reporting**: Provides clear output showing which files match known IOCs with their hash values
+- **Detailed Reporting**: Provides clear output showing which files match known IOCs with their hash values, and saves dependency scan results to JSON files
 
 ## Installation
 
@@ -37,17 +38,49 @@ bun run check ./my-project
 **When no IOCs are found:**
 
 ```
+🔒 Security Scanner
+==================
+Scanning for compromised packages and indicators of compromise
+
+📂 Scanning directory: ./my-project
 Scanning ./my-project for IOCs...
 No IOC matches found.
+
+📦 Checking dependencies in ./my-project
+	🔍 Checking 150 confirmed compromised packages
+	🔍 Searching for lock files in ./my-project
+	🔍 Found 1 lock files
+		🔍 Checking dependencies for ./my-project/bun.lock
+		🟢 No matches found
+	🟢 No dependencies compromised were found
+
+⏱️ Scan completed in 2.34 seconds
 ```
 
 **When IOCs are detected:**
 
 ```
+🔒 Security Scanner
+==================
+Scanning for compromised packages and indicators of compromise
+
+📂 Scanning directory: ./my-project
 Scanning ./my-project for IOCs...
 Found 2 IOC matches:
   bun_environment.js: /path/to/my-project/node_modules/some-package/bun_environment.js (62ee164b9b306250c1172583f138c9614139264f889fa99614903c12755468d0)
   setup_bun.js: /path/to/my-project/node_modules/another-package/setup_bun.js (a3894003ad1d293ba96d77881ccd2071446dc3f65f434669b49b3da92421901a)
+
+📦 Checking dependencies in ./my-project
+	🔍 Checking 150 confirmed compromised packages
+	🔍 Searching for lock files in ./my-project
+	🔍 Found 1 lock files
+		🔍 Checking dependencies for ./my-project/bun.lock
+		🚨 Found 1 matches
+			🚨 COMPROMISED VERSION: malicious-package 1.2.3 - This exact version is known to be compromised!
+	💾 Results saved to results/dependencies-bun-abc123-2024-01-01T12-00-00-000Z.json
+	🚨 Found 1 matches
+
+⏱️ Scan completed in 3.45 seconds
 ```
 
 ## What This Project Does
@@ -58,9 +91,10 @@ This security scanner is designed for the SHA1-HULUD pt 2 supply chain attack by
 2. **Identifying suspicious files** that match known malicious file names (IOCs)
 3. **Computing SHA256 hashes** for each matching file
 4. **Comparing hashes** against a database of known malicious file signatures
-5. **Reporting matches** with detailed information about compromised files
+5. **Scanning dependencies** by automatically finding and parsing lock files (bun.lock, yarn.lock, pnpm-lock.yaml) to check if any installed packages match known compromised package names and versions
+6. **Reporting matches** with detailed information about compromised files and packages
 
-The scanner helps you quickly identify if your system has been compromised by malicious npm packages that inject malicious code during installation or build processes.
+The scanner helps you quickly identify if your system has been compromised by malicious npm packages that inject malicious code during installation or build processes. It performs both file-based IOC detection and dependency-based package verification to provide comprehensive security coverage.
 
 ## ⚠️ If Compromised Packages Found
 
