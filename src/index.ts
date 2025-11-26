@@ -1,5 +1,6 @@
 import { checkDependencies } from "./checkDependencies";
 import { checkPackageFiles } from "./checkPackageFiles";
+import { checkGithubWorkflows } from "./checkGithubWorkflow";
 import { scanIOCs } from "./scanIOCs";
 import { access } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -20,6 +21,9 @@ async function main(directory: string) {
 
   console.log(`📦 Checking package files in ${directory}`);
   await checkPackageFiles(directory);
+
+  console.log(`🔧 Checking GitHub workflows in ${directory}`);
+  await checkGithubWorkflows(directory);
 
   const endTime = performance.now();
   const duration = ((endTime - startTime) / 1000).toFixed(2);
