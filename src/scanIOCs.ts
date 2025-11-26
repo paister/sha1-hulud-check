@@ -7,7 +7,7 @@ export async function scanIOCs(directory: string): Promise<void> {
   const foundFiles: { file: string; ioc: string; hash: string }[] = [];
 
   for (const ioc of IOCS) {
-    const files = await findFiles(directory, ioc.name);
+    const files = await findFiles(directory, `**/${ioc.name}`);
 
     for (const file of files) {
       try {

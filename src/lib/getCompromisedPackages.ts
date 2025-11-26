@@ -1,6 +1,5 @@
 import type { Dependency } from "../types";
 import { join } from "node:path";
-import { readFile } from "node:fs/promises";
 
 export async function getCompromisedPackages(): Promise<Dependency[]> {
   let compromisedPackages: Dependency[] = [];
@@ -10,7 +9,7 @@ export async function getCompromisedPackages(): Promise<Dependency[]> {
 
 const loadKoiList = async (): Promise<Dependency[]> => {
   const csvPath = join(process.cwd(), "assets", "Public Sha1-Hulud - Koi.csv");
-  const csvContent = await readFile(csvPath, "utf-8");
+  const csvContent = await Bun.file(csvPath).text();
 
   const lines = csvContent.split("\n");
   const dependencies: Dependency[] = [];

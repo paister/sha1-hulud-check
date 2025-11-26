@@ -13,19 +13,18 @@ const checkPackageFile = async (packageFile: string): Promise<boolean> => {
   return containsPreinstall;
 };
 
-const findAllPackageFiles = async (directory: string): Promise<string[]> => {
-  const packageFiles = await findFiles(directory, /package\.json$/i);
-  return packageFiles;
-};
-
 export const checkPackageFiles = async (directory: string): Promise<void> => {
-  const packageFiles = await findAllPackageFiles(directory);
+  const packageFiles = await findFiles(directory, "**/package.json");
   const flagged: string[] = [];
 
   for (const packageFile of packageFiles) {
-    const containsPreinstall = await checkPackageFile(packageFile);
-    if (containsPreinstall) {
-      flagged.push(packageFile);
+    try {
+      const containsPreinstall = await checkPackageFile(packageFile);
+      if (containsPreinstall) {
+        flagged.push(packageFile);
+      }
+    } catch (error) {
+      continue;
     }
   }
 

@@ -1,4 +1,3 @@
-import { readFile, writeFile } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
@@ -58,7 +57,7 @@ async function updateCompromisedPackages() {
 
     // Write the new content
     console.log("📝 Writing updated CSV to assets file...");
-    await writeFile(ASSETS_FILE, newCsvContent, "utf-8");
+    await Bun.write(ASSETS_FILE, newCsvContent);
     console.log(`✅ Successfully updated ${ASSETS_FILE}`);
     console.log("");
     console.log("🎉 Update complete!");

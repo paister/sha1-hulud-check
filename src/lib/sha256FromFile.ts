@@ -1,5 +1,4 @@
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
 
 /**
  * Generates a SHA256 hash from a file
@@ -8,7 +7,7 @@ import { readFile } from "node:fs/promises";
  */
 export async function sha256FromFile(filePath: string): Promise<string> {
   try {
-    const fileBuffer = await readFile(filePath);
+    const fileBuffer = await Bun.file(filePath).bytes();
     const hash = createHash("sha256");
     hash.update(fileBuffer);
     return hash.digest("hex");

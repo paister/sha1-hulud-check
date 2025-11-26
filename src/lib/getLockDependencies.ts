@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import { basename } from "node:path";
 import type { Dependency } from "../types";
 
@@ -11,7 +10,7 @@ async function getBunLockDependencies(
   lockFilePath: string
 ): Promise<Dependency[]> {
   try {
-    const lockContent = await readFile(lockFilePath, "utf-8");
+    const lockContent = await Bun.file(lockFilePath).text();
     // Remove trailing commas to make it valid JSON (bun.lock allows trailing commas)
     const cleanedContent = lockContent.replace(/,(\s*[}\]])/g, "$1");
     const lockData = JSON.parse(cleanedContent);
@@ -94,7 +93,7 @@ async function getYarnLockDependencies(
   lockFilePath: string
 ): Promise<Dependency[]> {
   try {
-    const lockContent = await readFile(lockFilePath, "utf-8");
+    const lockContent = await Bun.file(lockFilePath).text();
     const dependencies: Dependency[] = [];
 
     // Split content into blocks
@@ -164,7 +163,7 @@ async function getPnpmLockDependencies(
   lockFilePath: string
 ): Promise<Dependency[]> {
   try {
-    const lockContent = await readFile(lockFilePath, "utf-8");
+    const lockContent = await Bun.file(lockFilePath).text();
     const dependencies: Dependency[] = [];
 
     // Parse YAML-like content manually (simple approach for pnpm-lock.yaml)

@@ -14,15 +14,11 @@ export async function checkDependencies(directory: string): Promise<void> {
   );
 
   console.log(`\t🔍 Searching for lock files in ${directory}`);
-  const lockFiles = await findFiles(
-    directory,
-    new RegExp(
-      `(${SUPPORTED_LOCK_FILE_TYPES.map((type) =>
-        type.replace(".", "\\.")
-      ).join("|")})$`,
-      "i"
-    )
-  );
+  const lockFiles: string[] = [];
+  for (const lockType of SUPPORTED_LOCK_FILE_TYPES) {
+    const files = await findFiles(directory, `**/${lockType}`);
+    lockFiles.push(...files);
+  }
 
   console.log(`\t🔍 Found ${lockFiles.length} lock files`);
 
