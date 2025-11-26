@@ -1,5 +1,7 @@
 import { checkDependencies } from "./checkDependencies";
 import { scanIOCs } from "./scanIOCs";
+import { access } from "node:fs/promises";
+import { resolve } from "node:path";
 
 async function main(directory: string) {
   const startTime = performance.now();
@@ -28,5 +30,17 @@ if (import.meta.main) {
     console.error("Usage: bun run check <directory>");
     process.exit(1);
   }
-  await main(directory);
+
+  const dir = resolve(directory);
+
+  try {
+    await access(dir);
+  } catch (error) {
+    console.error(
+      `Error: Directory '${dir}' does not exist or is not accessible.`
+    );
+    process.exit(1);
+  }
+
+  await main(dir);
 }

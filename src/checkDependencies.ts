@@ -4,6 +4,9 @@ import { getLockDependencies } from "./lib/getLockDependencies";
 import type { CheckDependenciesResult, Dependency } from "./types";
 import { join } from "node:path";
 import { hash } from "bun";
+
+const SUPPORTED_LOCK_FILE_TYPES = ["bun.lock", "yarn.lock", "pnpm-lock.yaml"];
+
 export async function checkDependencies(directory: string): Promise<void> {
   const compromisedPackages = await getCompromisedPackages();
   console.log(
@@ -11,9 +14,16 @@ export async function checkDependencies(directory: string): Promise<void> {
   );
 
   console.log(`\t🔍 Searching for lock files in ${directory}`);
-  const lockFiles = await findFiles(directory, /\.lock$/i, {
-    matchFullPath: true,
-  });
+  const lockFiles = await findFiles(
+    directory,
+    new RegExp(
+      `(${SUPPORTED_LOCK_FILE_TYPES.map((type) =>
+        type.replace(".", "\\.")
+      ).join("|")})$`,
+      "i"
+    )
+  );
+
   console.log(`\t🔍 Found ${lockFiles.length} lock files`);
 
   let totalMatches = 0;
@@ -58,6 +68,10 @@ const checkLockFile = async (
   compromisedPackages: Dependency[]
 ): Promise<CheckDependenciesResult[]> => {
   const lockDependencies = await getLockDependencies(lockFile);
+  if (!lockDependencies) {
+    console.log(`\t\t🚨 Unsupported lock file type: ${lockFile}`);
+    return [];
+  }
   console.log(`\t\t🔍 Checking dependencies for ${lockFile}`);
 
   const matches = findMatches(lockDependencies, compromisedPackages);

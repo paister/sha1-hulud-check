@@ -156,13 +156,71 @@ async function getYarnLockDependencies(
 }
 
 /**
+ * Reads a pnpm-lock.yaml file and extracts all installed dependencies
+ * @param lockFilePath - Path to the pnpm-lock.yaml file
+ * @returns Array of dependencies with name and version
+ */
+async function getPnpmLockDependencies(
+  lockFilePath: string
+): Promise<Dependency[]> {
+  try {
+    const lockContent = await readFile(lockFilePath, "utf-8");
+    const dependencies: Dependency[] = [];
+
+    // Parse YAML-like content manually (simple approach for pnpm-lock.yaml)
+    const lines = lockContent.split("\n");
+    let inPackagesSection = false;
+
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+
+      // Check if we're entering the packages section
+      if (trimmedLine === "packages:") {
+        inPackagesSection = true;
+        continue;
+      }
+
+      // Exit packages section if we hit another top-level section
+      if (
+        inPackagesSection &&
+        trimmedLine.endsWith(":") &&
+        !trimmedLine.startsWith("/")
+      ) {
+        inPackagesSection = false;
+        continue;
+      }
+
+      // Parse package entries in the packages section
+      if (inPackagesSection && trimmedLine.startsWith("/")) {
+        // Format: /package-name@version:
+        const packageMatch = trimmedLine.match(/^\/([^@]+)@([^:]+):/);
+        if (packageMatch && packageMatch[1] && packageMatch[2]) {
+          const name = packageMatch[1];
+          const version = packageMatch[2];
+          dependencies.push({ name, version });
+        }
+      }
+    }
+
+    // Remove duplicates based on name
+    const uniqueDependencies = dependencies.filter(
+      (dep, index, self) => index === self.findIndex((d) => d.name === dep.name)
+    );
+
+    return uniqueDependencies;
+  } catch (error) {
+    throw new Error(`Failed to read or parse pnpm-lock.yaml file: ${error}`);
+  }
+}
+
+/**
  * Reads a lock file and extracts all installed dependencies
  * @param lockFilePath - Path to the lock file
  * @returns Array of dependencies with name and version
  */
 export async function getLockDependencies(
   lockFilePath: string
-): Promise<Dependency[]> {
+): Promise<Dependency[] | undefined> {
   const fileName = basename(lockFilePath);
   console.log(`\t\t📦 Processing lock file: ${fileName} at ${lockFilePath}`);
 
@@ -174,6 +232,10 @@ export async function getLockDependencies(
     return getYarnLockDependencies(lockFilePath);
   }
 
+  if (fileName === "pnpm-lock.yaml") {
+    return getPnpmLockDependencies(lockFilePath);
+  }
+
   console.log(`\t\t🚨 Unsupported lock file type: ${fileName}`);
-  return [];
+  return undefined;
 }
