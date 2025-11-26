@@ -10,10 +10,11 @@
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   },
   "scripts": {
-    "check": "bun run src/index.ts"
+    "check": "bun run src/index.ts",
+    "update-list": "bun run src/update/updateCompromisedPackages.ts"
   },
   "dependencies": {
     "csv": "^6.4.1"
