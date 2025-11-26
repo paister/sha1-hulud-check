@@ -86,6 +86,76 @@ async function getBunLockDependencies(
 }
 
 /**
+ * Reads a yarn.lock file and extracts all installed dependencies
+ * @param lockFilePath - Path to the yarn.lock file
+ * @returns Array of dependencies with name and version
+ */
+async function getYarnLockDependencies(
+  lockFilePath: string
+): Promise<Dependency[]> {
+  try {
+    const lockContent = await readFile(lockFilePath, "utf-8");
+    const dependencies: Dependency[] = [];
+
+    // Split content into blocks
+    const blocks = lockContent.split(/\n(?=\S)/);
+
+    for (const block of blocks) {
+      const lines = block.trim().split("\n");
+      if (lines.length === 0) continue;
+
+      const headerLine = lines[0];
+      // Skip comments and empty lines
+      if (
+        !headerLine ||
+        headerLine.startsWith("#") ||
+        !headerLine.includes("@")
+      )
+        continue;
+
+      // Parse package name and version range from header
+      // Format: "package-name@^1.0.0", "@scoped/package@^1.0.0", etc.
+      const packageMatch = headerLine.match(
+        /^"?([^"@]+(?:@[^/]+\/[^@]+)?)@([^"]+)"?:/
+      );
+      if (!packageMatch) continue;
+
+      const packageName = packageMatch[1];
+
+      if (!packageName) {
+        continue;
+      }
+
+      // Find the resolved version in the block
+      let resolvedVersion = "";
+      for (const line of lines) {
+        const versionMatch = line.match(/^\s*version\s+"([^"]+)"/);
+        if (versionMatch && versionMatch[1]) {
+          resolvedVersion = versionMatch[1];
+          break;
+        }
+      }
+
+      if (resolvedVersion) {
+        dependencies.push({
+          name: packageName,
+          version: resolvedVersion,
+        });
+      }
+    }
+
+    // Remove duplicates based on name
+    const uniqueDependencies = dependencies.filter(
+      (dep, index, self) => index === self.findIndex((d) => d.name === dep.name)
+    );
+
+    return uniqueDependencies;
+  } catch (error) {
+    throw new Error(`Failed to read or parse yarn.lock file: ${error}`);
+  }
+}
+
+/**
  * Reads a lock file and extracts all installed dependencies
  * @param lockFilePath - Path to the lock file
  * @returns Array of dependencies with name and version
@@ -98,6 +168,10 @@ export async function getLockDependencies(
 
   if (fileName === "bun.lock") {
     return getBunLockDependencies(lockFilePath);
+  }
+
+  if (fileName === "yarn.lock") {
+    return getYarnLockDependencies(lockFilePath);
   }
 
   console.log(`\t\t🚨 Unsupported lock file type: ${fileName}`);
